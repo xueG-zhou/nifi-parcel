@@ -1,0 +1,1378 @@
+{
+	"name": "NIFI",
+	"label": "NiFi",
+	"description": "Apache NiFi service",
+	"version": 1,
+	"runAs": {
+		"user": "root",
+		"group": "root"
+	},
+	"maxInstances": 1,
+	"icon": "images/icon.png",
+	"compatibility": {
+		"generation": 1,
+		"cdhVersion": {
+			"min": 5,
+			"max": 5
+		}
+	},
+	"parcel": {
+		"requiredTags": ["cdh"],
+		"optionalTags": ["nifi-plugin"]
+	},
+	"serviceDependencies": [{
+		"name": "HDFS",
+		"required": "true"
+	}],
+	"commands" : [
+		{
+		"name" : "ForceStop",
+		"label" : "Force stop",
+		"description" : "Force stop of NiFi Nodes",
+		"roleCommand" : "ForceStopRole",
+		"roleName" : "NIFI_NODE",
+		"runMode" : "all"
+		},
+		{
+		"name" : "CheckStatusR",
+		"label" : "Check Status Running",
+		"description" : "Check status of NiFi Nodes when they are running",
+		"roleCommand" : "CheckStatusRoleR",
+		"roleName" : "NIFI_NODE",
+		"runMode" : "all"
+		}		,
+		{
+		"name" : "CheckStatusS",
+		"label" : "Check Status Stopped",
+		"description" : "Check status of NiFi Nodes when they are stopped",
+		"roleCommand" : "CheckStatusRoleS",
+		"roleName" : "NIFI_NODE",
+		"runMode" : "all"
+		}
+	],
+	"rolesWithExternalLinks": ["NIFI_NODE"],
+	"roles": [{
+		"name": "NIFI_NODE",
+		"label": "NiFi Node",
+		"pluralLabel": "NiFi Nodes",
+		"jvmBased": true,
+		"startRunner": {
+			"program": "scripts/control.sh",
+			"args": ["run"]
+		},
+		"stopRunner" : {
+			"timeout" : "90000",
+			"runner" : {
+				"program" : "scripts/control.sh",
+				"args" : ["stop"]
+				}
+		},
+		"externalLink": {
+			"name": "nifi_web_ui",
+			"label": "NiFi Node Web UI",
+			"url": "http://${host}:8080/nifi"
+		},
+		"commands": [
+			{
+			"name": "ForceStopRole",
+			"label": "Force Stop Role",
+			"description": "Force stop of NiFi Node",
+			"expectedExitCodes": [0],
+			"requiredRoleState": "stopped",
+			"commandRunner": {
+				"program": "scripts/control.sh",
+				"args": ["stop"]
+				}
+			},
+			{
+			"name": "CheckStatusRoleR",
+			"label" : "Check Status Role Running",
+			"description" : "Check status of NiFi Node when it is running",
+			"expectedExitCodes": [0],
+			"requiredRoleState": "running",
+			"commandRunner": {
+				"program": "scripts/control.sh",
+				"args": ["status"]			
+				}
+			}
+			,
+			{
+			"name": "CheckStatusRoleS",
+			"label" : "Check Status Role Stopped",
+			"description" : "Check status of NiFi Node when it is stopped",
+			"expectedExitCodes": [0],
+			"requiredRoleState": "stopped",
+			"commandRunner": {
+				"program": "scripts/control.sh",
+				"args": ["status"]			
+				}
+			}
+		],
+		"configWriter": {
+			"generators": [
+			{
+				"filename": "nifi.properties",
+				"configFormat": "properties",
+				"includedParams": [
+					"flow_configuration_file",
+					"flow_configuration_archive_enabled",
+					"flow_configuration_archive_dir",
+					"flow_configuration_archive_max_time",
+					"flow_configuration_archive_max_storage",
+					"flow_configuration_archive_max_count",
+					"flowcontroller_autoResumeState",
+					"flowcontroller_graceful_shutdown_period",
+					"flowservice_writedelay_interval",
+					"administrative_yield_duration",
+					"bored_yield_duration",
+					"authorizer_configuration_file",
+					"login_identity_provider_configuration_file",
+					"templates_directory",
+					"ui_banner_text",
+					"ui_autorefresh_interval",
+					"nar_library_directory",
+					"nar_working_directory",
+					"documentation_working_directory",
+					"state_management_configuration_file",
+					"state_management_provider_local",
+					"state_management_provider_cluster",
+					"state_management_embedded_zookeeper_start",
+					"state_management_embedded_zookeeper_properties",
+					"database_directory",
+					"h2_url_append",
+					"flowfile_repository_implementation",
+					"flowfile_repository_directory",
+					"flowfile_repository_partitions",
+					"flowfile_repository_checkpoint_interval",
+					"flowfile_repository_always_sync",
+					"swap_manager_implementation",
+					"queue_swap_threshold",
+					"swap_in_period",
+					"swap_in_threads",
+					"swap_out_period",
+					"swap_out_threads",
+					"content_repository_implementation",
+					"content_claim_max_appendable_size",
+					"content_claim_max_flow_files",
+					"content_repository_directory_default",
+					"content_repository_archive_max_retention_period",
+					"content_repository_archive_max_usage_percentage",
+					"content_repository_archive_enabled",
+					"content_repository_always_sync",
+					"content_viewer_url",
+					"provenance_repository_implementation",
+					"provenance_repository_debug_frequency",
+					"provenance_repository_encryption_key_provider_implementation",
+					"provenance_repository_encryption_key_provider_location",
+					"provenance_repository_encryption_key_id",
+					"provenance_repository_encryption_key",
+					"provenance_repository_directory_default",
+					"provenance_repository_max_storage_time",
+					"provenance_repository_max_storage_size",
+					"provenance_repository_rollover_time",
+					"provenance_repository_rollover_size",
+					"provenance_repository_query_threads",
+					"provenance_repository_index_threads",
+					"provenance_repository_compress_on_rollover",
+					"provenance_repository_always_sync",
+					"provenance_repository_journal_count",
+					"provenance_repository_indexed_fields",
+					"provenance_repository_indexed_attributes",
+					"provenance_repository_index_shard_size",
+					"provenance_repository_max_attribute_length",
+					"provenance_repository_buffer_size",
+					"components_status_repository_implementation",
+					"components_status_repository_buffer_size",
+					"components_status_snapshot_frequency",
+					"remote_input_secure",
+					"remote_input_socket_port",
+					"remote_input_http_enabled",
+					"remote_input_http_transaction_ttl",
+					"web_war_directory",
+					"web_http_port",
+					"web_http_network_interface_default",
+					"web_https_host",
+					"web_https_port",
+					"web_https_network_interface_default",
+					"web_jetty_working_directory",
+					"web_jetty_threads",
+					"sensitive_props_key",
+					"sensitive_props_key_protected",
+					"sensitive_props_algorithm",
+					"sensitive_props_provider",
+					"sensitive_props_additional_keys",
+					"security_keystore",
+					"security_keystoreType",
+					"security_keystorePasswd",
+					"security_keyPasswd",
+					"security_truststore",
+					"security_truststoreType",
+					"security_truststorePasswd",
+					"security_needClientAuth",
+					"security_user_authorizer",
+					"security_user_login_identity_provider",
+					"security_ocsp_responder_url",
+					"security_ocsp_responder_certificate",
+					"cluster_protocol_heartbeat_interval",
+					"cluster_protocol_is_secure",
+					"cluster_is_node",
+					"cluster_node_protocol_port",
+					"cluster_node_protocol_threads",
+					"cluster_node_event_history_size",
+					"cluster_node_connection_timeout",
+					"cluster_node_read_timeout",
+					"cluster_firewall_file",
+					"cluster_flow_election_max_wait_time",
+					"cluster_flow_election_max_candidates",
+					"zookeeper_connect_string",
+					"zookeeper_connect_timeout",
+					"zookeeper_session_timeout",
+					"zookeeper_root_node",
+					"kerberos_krb5_file",
+					"kerberos_service_principal",
+					"kerberos_service_keytab_location",
+					"kerberos_spnego_principal",
+					"kerberos_spnego_keytab_location",
+					"kerberos_spnego_authentication_expiration",
+					"variable_registry_properties"
+				],
+				"additionalConfigs" : [
+				{
+					"key" : "nifi.remote.input.host",
+					"value" : "${host}"
+				},
+				{
+					"key" : "nifi.web.http.host",
+					"value" : "${host}"
+				},
+				{
+					"key" : "nifi.cluster.node.address",
+					"value" : "${host}"
+				}]
+			}]
+		}
+	}],
+	"parameters": [
+	{
+		"name": "flow_configuration_file",
+		"label": "Flow configuration file",
+		"description": "The location of the flow configuration file (i.e., the file that contains what is currently displayed on the NiFi graph). The default value is ./conf/flow.xml.gz.",
+		"configName": "nifi.flow.configuration.file",
+		"required": "true",
+		"type": "path",
+		"pathType": "serviceSpecific",
+		"default": "./conf/flow.xml.gz"
+	},
+	{
+		"name": "flow_configuration_archive_enabled",
+		"label": "Flow configuration archive enabled",
+		"description": "Specifies whether NiFi creates a backup copy of the flow automatically when the flow is updated. The default value is true.",
+		"configName": "nifi.flow.configuration.archive.enabled",
+		"required": "true",
+		"type": "boolean",
+		"default": "true"
+	},
+	{
+		"name": "flow_configuration_archive_dir",
+		"label": "Flow configuration archive dir",
+		"description": "The location of the archive directory where backup copies of the flow.xml are saved. The default value is ./conf/archive. NiFi removes old archive files to limit disk usage based on archived file lifespan, total size, and number of files, as specified with nifi.flow.configuration.archive.max.time, max.storage and max.count properties respectively.",
+		"configName": "nifi.flow.configuration.archive.dir",
+		"required": "true",
+		"type": "path",
+		"pathType": "localDataDir",
+		"default": "./conf/archive/"
+	},
+	{
+		"name": "flow_configuration_archive_max_time",
+		"label": "Flow configuration archive max time",
+		"description": "The lifespan of archived flow.xml files. NiFi will delete expired archive files when it updates flow.xml if this property is specified. Expiration is determined based on current system time and the last modified timestamp of an archived flow.xml. If no archive limitation is specified in nifi.properties, NiFi removes archives older than 30 days.",
+		"configName": "nifi.flow.configuration.archive.max.time",
+		"required": "true",
+		"type": "string",
+		"default": "30 days"
+	},
+	{
+		"name": "flow_configuration_archive_max_storage",
+		"label": "Flow configuration archive max storage",
+		"description": "The total data size allowed for the archived flow.xml files. NiFi will delete the oldest archive files until the total archived file size becomes less than this configuration value, if this property is specified. If no archive limitation is specified in nifi.properties, NiFi uses 500 MB for this.",
+		"configName": "nifi.flow.configuration.archive.max.storage",
+		"required": "true",
+		"type": "string",
+		"default": "500 MB"
+	},
+	{
+		"name": "flow_configuration_archive_max_count",
+		"label": "Flow configuration archive max count",
+		"description": "The number of archive files allowed. NiFi will delete the oldest archive files so that only N latest archives can be kept, if this property is specified.",
+		"configName": "nifi.flow.configuration.archive.max.count",
+		"required": "false",
+		"type": "long",
+		"default": ""
+	},
+	{
+		"name": "flowcontroller_autoResumeState",
+		"label": "Flowcontroller autoResumeState",
+		"description": "Indicates whether -upon restart- the components on the NiFi graph should return to their last state. The default value is true.",
+		"configName": "nifi.flowcontroller.autoResumeState",
+		"required": "true",
+		"type": "boolean",
+		"default": "true"
+	},
+	{
+		"name": "flowcontroller_graceful_shutdown_period",
+		"label": "Flowcontroller graceful shutdown period",
+		"description": "Indicates the shutdown period. The default value is 10 secs.",
+		"configName": "nifi.flowcontroller.graceful.shutdown.period",
+		"required": "true",
+		"type": "string",
+		"default": "10 sec"
+	},
+	{
+		"name": "flowservice_writedelay_interval",
+		"label": "Flowservice writedelay interval",
+		"description": "When many changes are made to the flow.xml, this property specifies how long to wait before writing out the changes, so as to batch the changes into a single write. The default value is 500 ms.",
+		"configName": "nifi.flowservice.writedelay.interval",
+		"required": "true",
+		"type": "string",
+		"default": "500 ms"
+	},
+	{
+		"name": "administrative_yield_duration",
+		"label": "Administrative yield duration",
+		"description": "If a component allows an unexpected exception to escape, it is considered a bug. As a result, the framework will pause (or administratively yield) the component for this amount of time. This is done so that the component does not use up massive amounts of system resources, since it is known to have problems in the existing state. The default value is 30 secs.",
+		"configName": "nifi.administrative.yield.duration",
+		"required": "true",
+		"type": "string",
+		"default": "30 sec"
+	},
+	{
+		"name": "bored_yield_duration",
+		"label": "Bored yield duration",
+		"description": "When a component has no work to do (i.e., is bored), this is the amount of time it will wait before checking to see if it has new data to work on. This way, it does not use up CPU resources by checking for new work too often. When setting this property, be aware that it could add extra latency for components that do not constantly have work to do, as once they go into this bored state, they will wait this amount of time before checking for more work. The default value is 10 ms.",
+		"configName": "nifi.bored.yield.duration",
+		"required": "true",
+		"type": "string",
+		"default": "10 ms"
+	},
+	{
+		"name": "authorizer_configuration_file",
+		"label": "Authorizer configuration file",
+		"description": "This is the location of the file that specifies how authorizers are defined. The default value is ./conf/authorizers.xml.",
+		"configName": "nifi.authorizer.configuration.file",
+		"required": "true",
+		"type": "path",
+		"pathType": "serviceSpecific",
+		"default": "./conf/authorizers.xml"
+	},
+	{
+		"name": "login_identity_provider_configuration_file",
+		"label": "Login identity provider configuration file",
+		"description": "This is the location of the file that specifies how username/password authentication is performed. This file is only considered if nifi.security.user.login.identity.provider is configured with a provider identifier. The default value is ./conf/login-identity-providers.xml.",
+		"configName": "nifi.login.identity.provider.configuration.file",
+		"required": "true",
+		"type": "path",
+		"pathType": "serviceSpecific",
+		"default": "./conf/login-identity-providers.xml"
+	},
+	{
+		"name": "templates_directory",
+		"label": "Templates directory",
+		"description": "This is the location of the directory where flow templates are saved (for backward compatibility only). Templates are stored in the flow.xml.gz starting with NiFi 1.0. The template directory can be used to (bulk) import templates into the flow.xml.gz automatically on NiFi startup. The default value is ./conf/templates.",
+		"configName": "nifi.templates.directory",
+		"required": "true",
+		"type": "path",
+		"pathType": "localDataDir",
+		"default": "./conf/templates"
+	},
+	{
+		"name": "ui_banner_text",
+		"label": "UI banner text",
+		"description": "This is banner text that may be configured to display at the top of the User Interface. It is blank by default.",
+		"configName": "nifi.ui.banner.text",
+		"required": "false",
+		"type": "string",
+		"default": ""
+	},
+	{
+		"name": "ui_autorefresh_interval",
+		"label": "UI autorefresh interval",
+		"description": "The interval at which the User Interface auto-refreshes. The default value is 30 secs.",
+		"configName": "nifi.ui.autorefresh.interval",
+		"required": "true",
+		"type": "string",
+		"default": "30 sec"
+	},
+	{
+		"name": "nar_library_directory",
+		"label": "NAR_library_directory",
+		"description": "The location of the nar library. The default value is ./lib and probably should be left as is.",
+		"configName": "nifi.nar.library.directory",
+		"required": "true",
+		"type": "path",
+		"pathType": "localDataDir",
+		"default": "./lib"
+	},
+	{
+		"name": "nar_working_directory",
+		"label": "NAR working directory",
+		"description": "The location of the nar working directory. The default value is ./work/nar and probably should be left as is.",
+		"configName": "nifi.nar.working.directory",
+		"required": "true",
+		"type": "path",
+		"pathType": "localDataDir",
+		"default": "./work/nar/"
+	},
+	{
+		"name": "documentation_working_directory",
+		"label": "Documentation working directory",
+		"description": "The documentation working directory. The default value is ./work/docs/components and probably should be left as is.",
+		"configName": "nifi.documentation.working.directory",
+		"required": "true",
+		"type": "path",
+		"pathType": "localDataDir",
+		"default": "./work/docs/components"
+	},
+	{
+		"name": "state_management_configuration_file",
+		"label": "State management configuration file",
+		"description": "The XML file that contains configuration for the local and cluster-wide State Providers. The default value is ./conf/state-management.xml.",
+		"configName": "nifi.state.management.configuration.file",
+		"required": "true",
+		"type": "path",
+		"pathType": "serviceSpecific",
+		"default": "./conf/state-management.xml"
+	},
+	{
+		"name": "state_management_provider_local",
+		"label": "State management provider local",
+		"description": "The ID of the Local State Provider to use. This value must match the value of the id element of one of the local-provider elements in the state-management.xml file.",
+		"configName": "nifi.state.management.provider.local",
+		"required": "true",
+		"type": "string",
+		"default": "local-provider"
+	},
+	{
+		"name": "state_management_provider_cluster",
+		"label": "State management provider cluster",
+		"description": "The ID of the Cluster State Provider to use. This value must match the value of the id element of one of the cluster-provider elements in the state-management.xml file. This value is ignored if not clustered but is required for nodes in a cluster.",
+		"configName": "nifi.state.management.provider.cluster",
+		"required": "true",
+		"type": "string",
+		"default": "zk-provider"
+	},
+	{
+		"name": "state_management_embedded_zookeeper_start",
+		"label": "State management embedded zookeeper start",
+		"description": "Specifies whether or not this instance of NiFi should start an embedded ZooKeeper Server. This is used in conjunction with the ZooKeeperStateProvider.",
+		"configName": "nifi.state.management.embedded.zookeeper.start",
+		"required": "true",
+		"type": "boolean",
+		"default": "false"
+	},
+	{
+		"name": "state_management_embedded_zookeeper_properties",
+		"label": "State management embedded zookeeper properties",
+		"description": "Specifies a properties file that contains the configuration for the embedded ZooKeeper Server that is started (if the nifi.state.management.embedded.zookeeper.start property is set to true)",
+		"configName": "nifi.state.management.embedded.zookeeper.properties",
+		"required": "true",
+		"type": "path",
+		"pathType": "serviceSpecific",
+		"default": "./conf/zookeeper.properties"
+	},
+	{
+		"name": "database_directory",
+		"label": "Database directory",
+		"description": "The location of the H2 database directory. The default value is ./database_repository.",
+		"configName": "nifi.database.directory",
+		"required": "true",
+		"type": "path",
+		"pathType": "localDataDir",
+		"default": "./database_repository"
+	},
+	{
+		"name": "h2_url_append",
+		"label": "H2 url append",
+		"description": "This property specifies additional arguments to add to the connection string for the H2 database. The default value should be used and should not be changed. It is: ;LOCK_TIMEOUT=25000;WRITE_DELAY=0;AUTO_SERVER=FALSE",
+		"configName": "nifi.h2.url.append",
+		"required": "true",
+		"type": "string",
+		"default": ";LOCK_TIMEOUT=25000;WRITE_DELAY=0;AUTO_SERVER=FALSE"
+	},
+	{
+		"name": "flowfile_repository_implementation",
+		"label": "Flowfile repository implementation",
+		"description": "The FlowFile Repository implementation. The default value is org.apache.nifi.controller.repository.WriteAheadFlowFileRepository and should only be changed with caution. To store flowfiles in memory instead of on disk (at the risk of data loss in the event of power/machine failure), set this property to org.apache.nifi.controller.repository.VolatileFlowFileRepository.",
+		"configName": "nifi.flowfile.repository.implementation",
+		"required": "true",
+		"type": "string",
+		"default": "org.apache.nifi.controller.repository.WriteAheadFlowFileRepository"
+	},
+	{
+		"name": "flowfile_repository_directory",
+		"label": "Flowfile repository directory",
+		"description": "The location of the FlowFile Repository. The default value is ./flowfile_repository.",
+		"configName": "nifi.flowfile.repository.directory",
+		"required": "true",
+		"type": "path",
+		"pathType": "localDataDir",
+		"default": "./flowfile_repository"
+	},
+	{
+		"name": "flowfile_repository_partitions",
+		"label": "Flowfile repository partitions",
+		"description": "The number of partitions. The default value is 256.",
+		"configName": "nifi.flowfile.repository.partitions",
+		"required": "true",
+		"type": "long",
+		"default": "256"
+	},
+	{
+		"name": "flowfile_repository_checkpoint_interval",
+		"label": "Flowfile repository checkpoint interval",
+		"description": "The FlowFile Repository checkpoint interval. The default value is 2 mins.",
+		"configName": "nifi.flowfile.repository.checkpoint.interval",
+		"required": "true",
+		"type": "string",
+		"default": "2 min"
+	},
+	{
+		"name": "flowfile_repository_always_sync",
+		"label": "Flowfile repository always ync",
+		"description": "If set to true, any change to the repository will be synchronized to the disk, meaning that NiFi will ask the operating system not to cache the information. This is very expensive and can significantly reduce NiFi performance. However, if it is false, there could be the potential for data loss if either there is a sudden power loss or the operating system crashes. The default value is false.",
+		"configName": "nifi.flowfile.repository.always.sync",
+		"required": "true",
+		"type": "boolean",
+		"default": "false"
+	},
+	{
+		"name": "swap_manager_implementation",
+		"label": "Swap manager implementation",
+		"description": "The Swap Manager implementation. The default value is org.apache.nifi.controller.FileSystemSwapManager and should not be changed.",
+		"configName": "nifi.swap.manager.implementation",
+		"required": "true",
+		"type": "string",
+		"default": "org.apache.nifi.controller.FileSystemSwapManager"
+	},
+	{
+		"name": "queue_swap_threshold",
+		"label": "Queue swap threshold",
+		"description": "The queue threshold at which NiFi starts to swap FlowFile information to disk. The default value is 20000.",
+		"configName": "nifi.queue.swap.threshold",
+		"required": "true",
+		"type": "long",
+		"default": "20000"
+	},
+	{
+		"name": "swap_in_period",
+		"label": "Swap in period",
+		"description": "The swap in period. The default value is 5 sec.",
+		"configName": "nifi.swap.in.period",
+		"required": "true",
+		"type": "string",
+		"default": "5 sec"
+	},
+	{
+		"name": "swap_in_threads",
+		"label": "Swap in threads",
+		"description": "The number of threads to use for swapping in. The default value is 1.",
+		"configName": "nifi.swap.in.threads",
+		"required": "true",
+		"type": "long",
+		"default": "1"
+	},
+	{
+		"name": "swap_out_period",
+		"label": "Swap out period",
+		"description": "The swap out period. The default value is 5 sec.",
+		"configName": "nifi.swap.out.period",
+		"required": "true",
+		"type": "string",
+		"default": "5 sec"
+	},
+	{
+		"name": "swap_out_threads",
+		"label": "Swap out threads",
+		"description": "The number of threads to use for swapping out. The default value is 4.",
+		"configName": "nifi.swap.out.threads",
+		"required": "true",
+		"type": "long",
+		"default": "4"
+	},
+	{
+		"name": "content_repository_implementation",
+		"label": "Content repository implementation",
+		"description": "The Content Repository implementation. The default value is org.apache.nifi.controller.repository.FileSystemRepository and should only be changed with caution. To store flowfile content in memory instead of on disk (at the risk of data loss in the event of power/machine failure), set this property to org.apache.nifi.controller.repository.VolatileContentRepository.",
+		"configName": "nifi.content.repository.implementation",
+		"required": "true",
+		"type": "string",
+		"default": "org.apache.nifi.controller.repository.FileSystemRepository"
+	},
+	{
+		"name": "content_claim_max_appendable_size",
+		"label": "Content claim max appendable size",
+		"description": "The maximum size for a content claim. The default value is 10 MB.",
+		"configName": "nifi.content.claim.max.appendable.size",
+		"required": "true",
+		"type": "string",
+		"default": "10 MB"
+	},
+	{
+		"name": "content_claim_max_flow_files",
+		"label": "Content claim max flow files",
+		"description": "The maximum number of FlowFiles to assign to one content claim. The default value is 100.",
+		"configName": "nifi.content.claim.max.flow.files",
+		"required": "true",
+		"type": "long",
+		"default": "100"
+	},
+	{
+		"name": "content_repository_directory_default",
+		"label": "Content repository directory default",
+		"description": "The location of the Content Repository. The default value is ./content_repository.",
+		"configName": "nifi.content.repository.directory.default",
+		"required": "true",
+		"type": "path",
+		"pathType": "localDataDir",
+		"default": "./content_repository"
+	},
+	{
+		"name": "content_repository_archive_max_retention_period",
+		"label": "Content repository archive max retention period",
+		"description": "If archiving is enabled (see nifi.content.repository.archive.enabled below), then this property specifies the maximum amount of time to keep the archived data. The default value is 12 hours.",
+		"configName": "nifi.content.repository.archive.max.retention.period",
+		"required": "true",
+		"type": "string",
+		"default": "12 hours"
+	},
+	{
+		"name": "content_repository_archive_max_usage_percentage",
+		"label": "Content repository archive max usage percentage",
+		"description": "If archiving is enabled (see nifi.content.repository.archive.enabled below), then this property must have a value that indicates the content repository disk usage percentage at which archived data begins to be removed. If the archive is empty and content repository disk usage is above this percentage, then archiving is temporarily disabled. Archiving will resume when disk usage is below this percentage. The default value is 50%.",
+		"configName": "nifi.content.repository.archive.max.usage.percentage",
+		"required": "true",
+		"type": "string",
+		"default": "50%"
+	},
+	{
+		"name": "content_repository_archive_enabled",
+		"label": "Content repository archive enabled",
+		"description": "To enable content archiving, set this to true and specify a value for the nifi.content.repository.archive.max.usage.percentage property above. Content archiving enables the provenance UI to view or replay content that is no longer in a dataflow queue. By default, archiving is enabled.",
+		"configName": "nifi.content.repository.archive.enabled",
+		"required": "true",
+		"type": "boolean",
+		"default": "true"
+	},
+	{
+		"name": "content_repository_always_sync",
+		"label": "Content repository always sync",
+		"description": "If set to true, any change to the repository will be synchronized to the disk, meaning that NiFi will ask the operating system not to cache the information. This is very expensive and can significantly reduce NiFi performance. However, if it is false, there could be the potential for data loss if either there is a sudden power loss or the operating system crashes. The default value is false.",
+		"configName": "nifi.content.repository.always.sync",
+		"required": "true",
+		"type": "boolean",
+		"default": "false"
+	},
+	{
+		"name": "content_viewer_url",
+		"label": "Content viewer url",
+		"description": "The URL for a web-based content viewer if one is available. It is blank by default.",
+		"configName": "nifi.content.viewer.url",
+		"required": "true",
+		"type": "uri",
+		"default": "/nifi-content-viewer/"
+	},
+	{
+		"name": "provenance_repository_implementation",
+		"label": "Provenance repository implementation",
+		"description": "The Provenance Repository implementation. The default value is org.apache.nifi.provenance.PersistentProvenanceRepository.",
+		"configName": "nifi.provenance.repository.implementation",
+		"required": "true",
+		"type": "string",
+		"default": "org.apache.nifi.provenance.PersistentProvenanceRepository"
+	},
+	{
+		"name": "provenance_repository_debug_frequency",
+		"label": "Provenance repository debug frequency",
+		"description": "None",
+		"configName": "nifi.provenance.repository.debug.frequency",
+		"required": "true",
+		"type": "long",
+		"default": "1000000"
+	},
+	{
+		"name": "provenance_repository_encryption_key_provider_implementation",
+		"label": "Provenance repository encryption key provider implementation",
+		"description": "None",
+		"configName": "nifi.provenance.repository.encryption.key.provider.implementation",
+		"required": "false",
+		"type": "string",
+		"default": ""
+	},
+	{
+		"name": "provenance_repository_encryption_key_provider_location",
+		"label": "Provenance repository encryption key provider location",
+		"description": "None",
+		"configName": "nifi.provenance.repository.encryption.key.provider.location",
+		"required": "false",
+		"type": "string",
+		"default": ""
+	},
+	{
+		"name": "provenance_repository_encryption_key_id",
+		"label": "Provenance repository encryption key id",
+		"description": "None",
+		"configName": "nifi.provenance.repository.encryption.key.id",
+		"required": "false",
+		"type": "string",
+		"default": ""
+	},
+	{
+		"name": "provenance_repository_encryption_key",
+		"label": "Provenance repository encryption key",
+		"description": "None",
+		"configName": "nifi.provenance.repository.encryption.key",
+		"required": "false",
+		"type": "string",
+		"default": ""
+	},
+	{
+		"name": "provenance_repository_directory_default",
+		"label": "Provenance repository directory default",
+		"description": "The location of the Provenance Repository. The default value is ./provenance_repository.",
+		"configName": "nifi.provenance.repository.directory.default",
+		"required": "true",
+		"type": "path",
+		"pathType": "localDataDir",
+		"default": "./provenance_repository"
+	},
+	{
+		"name": "provenance_repository_max_storage_time",
+		"label": "Provenance repository max storage time",
+		"description": "The maximum amount of time to keep data provenance information. The default value is 24 hours.",
+		"configName": "nifi.provenance.repository.max.storage.time",
+		"required": "true",
+		"type": "string",
+		"default": "24 hours"
+	},
+	{
+		"name": "provenance_repository_max_storage_size",
+		"label": "Provenance repository max storage size",
+		"description": "The maximum amount of data provenance information to store at a time. The default value is 1 GB.",
+		"configName": "nifi.provenance.repository.max.storage.size",
+		"required": "true",
+		"type": "string",
+		"default": "1 GB"
+	},
+	{
+		"name": "provenance_repository_rollover_time",
+		"label": "Provenance repository rollover time",
+		"description": "The amount of time to wait before rolling over the latest data provenance information so that it is available in the User Interface. The default value is 30 secs.",
+		"configName": "nifi.provenance.repository.rollover.time",
+		"required": "true",
+		"type": "string",
+		"default": "30 sec"
+	},
+	{
+		"name": "provenance_repository_rollover_size",
+		"label": "Provenance repository rollover size",
+		"description": "The amount of information to roll over at a time. The default value is 100 MB.",
+		"configName": "nifi.provenance.repository.rollover.size",
+		"required": "true",
+		"type": "string",
+		"default": "100 MB"
+	},
+	{
+		"name": "provenance_repository_query_threads",
+		"label": "Provenance repository query threads",
+		"description": "The number of threads to use for Provenance Repository queries. The default value is 2.",
+		"configName": "nifi.provenance.repository.query.threads",
+		"required": "true",
+		"type": "long",
+		"default": "2"
+	},
+	{
+		"name": "provenance_repository_index_threads",
+		"label": "Provenance repository index threads",
+		"description": "The number of threads to use for indexing Provenance events so that they are searchable. The default value is 1. ",
+		"configName": "nifi.provenance.repository.index.threads",
+		"required": "true",
+		"type": "long",
+		"default": "2"
+	},
+	{
+		"name": "provenance_repository_compress_on_rollover",
+		"label": "Provenance repository compress on rollover",
+		"description": "Indicates whether to compress the provenance information when rolling it over. The default value is true.",
+		"configName": "nifi.provenance.repository.compress.on.rollover",
+		"required": "true",
+		"type": "boolean",
+		"default": "true"
+	},
+	{
+		"name": "provenance_repository_always_sync",
+		"label": "Provenance repository always sync",
+		"description": "If set to true, any change to the repository will be synchronized to the disk, meaning that NiFi will ask the operating system not to cache the information. This is very expensive and can significantly reduce NiFi performance. However, if it is false, there could be the potential for data loss if either there is a sudden power loss or the operating system crashes. The default value is false.",
+		"configName": "nifi.provenance.repository.always.sync",
+		"required": "true",
+		"type": "boolean",
+		"default": "false"
+	},
+	{
+		"name": "provenance_repository_journal_count",
+		"label": "Provenance repository journal count",
+		"description": "The number of journal files that should be used to serialize Provenance Event data.",
+		"configName": "nifi.provenance.repository.journal.count",
+		"required": "true",
+		"type": "long",
+		"default": "16"
+	},
+	{
+		"name": "provenance_repository_indexed_fields",
+		"label": "Provenance repository indexed fields",
+		"description": "This is a comma-separated list of the fields that should be indexed and made searchable. Fields that are not indexed will not be searchable. Valid fields are: EventType, FlowFileUUID, Filename, TransitURI, ProcessorID, AlternateIdentifierURI, Relationship, Details. The default value is: EventType, FlowFileUUID, Filename, ProcessorID.",
+		"configName": "nifi.provenance.repository.indexed.fields",
+		"required": "true",
+		"type": "string_array",
+		"separator": ",",
+		"default": ["EventType",
+		"FlowFileUUID",
+		"Filename",
+		"ProcessorID",
+		"Relationship"]
+	},
+	{
+		"name": "provenance_repository_indexed_attributes",
+		"label": "Provenance repository indexed attributes",
+		"description": "This is a comma-separated list of FlowFile Attributes that should be indexed and made searchable. It is blank by default.",
+		"configName": "nifi.provenance.repository.indexed.attributes",
+		"required": "false",
+		"type": "string_array",
+		"separator": ","
+	},
+	{
+		"name": "provenance_repository_index_shard_size",
+		"label": "Provenance repository index shard size",
+		"description": "Large values for the shard size will result in more Java heap usage when searching the Provenance Repository but should provide better performance. The default value is 500 MB.",
+		"configName": "nifi.provenance.repository.index.shard.size",
+		"required": "true",
+		"type": "string",
+		"default": "500 MB"
+	},
+	{
+		"name": "provenance_repository_max_attribute_length",
+		"label": "Provenance repository max attribute length",
+		"description": "Indicates the maximum length that a FlowFile attribute can be when retrieving a Provenance Event from the repository. If the length of any attribute exceeds this value, it will be truncated when the event is retrieved. The default value is 65536.",
+		"configName": "nifi.provenance.repository.max.attribute.length",
+		"required": "true",
+		"type": "long",
+		"default": "65536"
+	},
+	{
+		"name": "provenance_repository_buffer_size",
+		"label": "Provenance repository buffer size",
+		"description": "The Provenance Repository buffer size. The default value is 100000.",
+		"configName": "nifi.provenance.repository.buffer.size",
+		"required": "true",
+		"type": "long",
+		"default": "100000"
+	},
+	{
+		"name": "components_status_repository_implementation",
+		"label": "Components status repository implementation",
+		"description": "The Component Status Repository implementation. The default value is org.apache.nifi.controller.status.history.VolatileComponentStatusRepository and should not be changed.",
+		"configName": "nifi.components.status.repository.implementation",
+		"required": "true",
+		"type": "string",
+		"default": "org.apache.nifi.controller.status.history.VolatileComponentStatusRepository"
+	},
+	{
+		"name": "components_status_repository_buffer_size",
+		"label": "Components status repository buffer size",
+		"description": "Specifies the buffer size for the Component Status Repository. The default value is 1440.",
+		"configName": "nifi.components.status.repository.buffer.size",
+		"required": "true",
+		"type": "long",
+		"default": "1440"
+	},
+	{
+		"name": "components_status_snapshot_frequency",
+		"label": "Components status snapshot frequency",
+		"description": "This value indicates how often to present a snapshot of the components' status history. The default value is 1 min.",
+		"configName": "nifi.components.status.snapshot.frequency",
+		"required": "true",
+		"type": "string",
+		"default": "1 min"
+	},
+	{
+		"name": "remote_input_secure",
+		"label": "Remote input secure",
+		"description": "This indicates whether communication between this instance of NiFi and remote NiFi instances should be secure. By default, it is set to false. ",
+		"configName": "nifi.remote.input.secure",
+		"required": "true",
+		"type": "boolean",
+		"default": "false"
+	},
+	{
+		"name": "remote_input_socket_port",
+		"label": "Remote input socket port",
+		"description": "The remote input socket port for Site-to-Site communication. By default, it is blank, but it must have a value in order to use RAW socket as transport protocol for Site-to-Site.",
+		"configName": "nifi.remote.input.socket.port",
+		"required": "true",
+		"type": "port",
+		"default": "9122"
+	},
+	{
+		"name": "remote_input_http_enabled",
+		"label": "Remote input http enabled",
+		"description": "Specifies whether HTTP Site-to-Site should be enabled on this host. By default, it is set to true.",
+		"configName": "nifi.remote.input.http.enabled",
+		"required": "true",
+		"type": "boolean",
+		"default": "true"
+	},
+	{
+		"name": "remote_input_http_transaction_ttl",
+		"label": "Remote input http transaction ttl",
+		"description": "Specifies how long a transaction can stay alive on the server. By default, it is set to 30 secs.",
+		"configName": "nifi.remote.input.http.transaction.ttl",
+		"required": "true",
+		"type": "string",
+		"default": "30 sec"
+	},
+	{
+		"name": "web_war_directory",
+		"label": "Web war directory",
+		"description": "This is the location of the web war directory. The default value is ./lib.",
+		"configName": "nifi.web.war.directory",
+		"required": "true",
+		"type": "path",
+		"pathType": "localDataDir",
+		"default": "./lib"
+	},
+	{
+		"name": "web_http_port",
+		"label": "Web http port",
+		"description": "The HTTP port. The default value is 8080.",
+		"configName": "nifi.web.http.port",
+		"required": "true",
+		"type": "port",
+		"default": "8080"
+	},
+	{
+		"name": "web_http_network_interface_default",
+		"label": "Web http network interface default",
+		"description": "The name of the network interface to which NiFi should bind for HTTP requests. It is blank by default.",
+		"configName": "nifi.web.http.network.interface.default",
+		"required": "false",
+		"type": "string",
+		"default": ""
+	},
+	{
+		"name": "web_https_host",
+		"label": "Web https host",
+		"description": "The HTTPS host. It is blank by default.",
+		"configName": "nifi.web.https.host",
+		"required": "false",
+		"type": "string",
+		"default": ""
+	},
+	{
+		"name": "web_https_port",
+		"label": "Web https port",
+		"description": "The HTTPS port. It is blank by default. When configuring NiFi to run securely, this port should be configured.",
+		"configName": "nifi.web.https.port",
+		"required": "false",
+		"type": "port",
+		"default": ""
+	},
+	{
+		"name": "web_https_network_interface_default",
+		"label": "Web https network interface default",
+		"description": "The name of the network interface to which NiFi should bind for HTTPS requests. It is blank by default.",
+		"configName": "nifi.web.https.network.interface.default",
+		"required": "false",
+		"type": "string",
+		"default": ""
+	},
+	{
+		"name": "web_jetty_working_directory",
+		"label": "Web jetty_working directory",
+		"description": "The location of the Jetty working directory. The default value is ./work/jetty.",
+		"configName": "nifi.web.jetty.working.directory",
+		"required": "true",
+		"type": "path",
+		"pathType": "localDataDir",
+		"default": "./work/jetty"
+	},
+	{
+		"name": "web_jetty_threads",
+		"label": "Web jetty threads",
+		"description": "The number of Jetty threads. The default value is 200.",
+		"configName": "nifi.web.jetty.threads",
+		"required": "true",
+		"type": "long",
+		"default": "200"
+	},
+	{
+		"name": "sensitive_props_key",
+		"label": "Sensitive props key",
+		"description": "This is the password used to encrypt any sensitive property values that are configured in processors.",
+		"configName": "nifi.sensitive.props.key",
+		"required": "false",
+		"type": "password",
+		"default": ""
+	},
+	{
+		"name": "sensitive_props_key_protected",
+		"label": "Sensitive props key protected",
+		"description": "None",
+		"configName": "nifi.sensitive.props.key.protected",
+		"required": "false",
+		"type": "string",
+		"default": ""
+	},
+	{
+		"name": "sensitive_props_algorithm",
+		"label": "Sensitive props algorithm",
+		"description": "The algorithm used to encrypt sensitive properties. The default value is PBEWITHMD5AND256BITAES-CBC-OPENSSL.",
+		"configName": "nifi.sensitive.props.algorithm",
+		"required": "true",
+		"type": "string",
+		"default": "PBEWITHMD5AND256BITAES-CBC-OPENSSL"
+	},
+	{
+		"name": "sensitive_props_provider",
+		"label": "Sensitive props provider",
+		"description": "The sensitive property provider. The default value is BC.",
+		"configName": "nifi.sensitive.props.provider",
+		"required": "true",
+		"type": "string",
+		"default": "BC"
+	},
+	{
+		"name": "sensitive_props_additional_keys",
+		"label": "Sensitive props additional keys",
+		"description": "The comma separated list of properties to encrypt in addition to the default sensitive properties",
+		"configName": "nifi.sensitive.props.additional.keys",
+		"required": "false",
+		"type": "string_array",
+		"separator": ","
+	},
+	{
+		"name": "security_keystore",
+		"label": "Security keystore",
+		"description": "The full path and name of the keystore. It is blank by default.",
+		"configName": "nifi.security.keystore",
+		"required": "false",
+		"type": "path",
+		"pathType": "serviceSpecific",
+		"default": ""
+	},
+	{
+		"name": "security_keystoreType",
+		"label": "Security keystoreType",
+		"description": "The keystore type. It is blank by default.",
+		"configName": "nifi.security.keystoreType",
+		"required": "false",
+		"type": "string",
+		"default": ""
+	},
+	{
+		"name": "security_keystorePasswd",
+		"label": "Security keystorePasswd",
+		"description": "The keystore password. It is blank by default.",
+		"configName": "nifi.security.keystorePasswd",
+		"required": "false",
+		"type": "password",
+		"default": ""
+	},
+	{
+		"name": "security_keyPasswd",
+		"label": "Security keyPasswd",
+		"description": "The key password. It is blank by default.",
+		"configName": "nifi.security.keyPasswd",
+		"required": "false",
+		"type": "password",
+		"default": ""
+	},
+	{
+		"name": "security_truststore",
+		"label": "Security truststore",
+		"description": "The full path and name of the truststore. It is blank by default.",
+		"configName": "nifi.security.truststore",
+		"required": "false",
+		"type": "path",
+		"pathType": "serviceSpecific",
+		"default": ""
+	},
+	{
+		"name": "security_truststoreType",
+		"label": "Security truststoreType",
+		"description": "The truststore type. It is blank by default.",
+		"configName": "nifi.security.truststoreType",
+		"required": "false",
+		"type": "string",
+		"default": ""
+	},
+	{
+		"name": "security_truststorePasswd",
+		"label": "Security truststorePasswd",
+		"description": "The truststore password. It is blank by default.",
+		"configName": "nifi.security.truststorePasswd",
+		"required": "false",
+		"type": "password",
+		"default": ""
+	},
+	{
+		"name": "security_needClientAuth",
+		"label": "Security needClientAuth",
+		"description": "This indicates whether client authentication in the cluster protocol. It is blank by default.",
+		"configName": "nifi.security.needClientAuth",
+		"required": "false",
+		"type": "string",
+		"default": ""
+	},
+	{
+		"name": "security_user_authorizer",
+		"label": "Security user authorizer",
+		"description": "Specifies which of the configured Authorizers in the authorizers.xml file to use. By default, it is set to file-provider.",
+		"configName": "nifi.security.user.authorizer",
+		"required": "true",
+		"type": "string",
+		"default": "file-provider"
+	},
+	{
+		"name": "security_user_login_identity_provider",
+		"label": "Security user login identity provider",
+		"description": "This indicates what type of login identity provider to use. ",
+		"configName": "nifi.security.user.login.identity.provider",
+		"required": "false",
+		"type": "string",
+		"default": ""
+	},
+	{
+		"name": "security_ocsp_responder_url",
+		"label": "Security ocsp responder url",
+		"description": "This is the URL for the Online Certificate Status Protocol (OCSP) responder if one is being used. It is blank by default.",
+		"configName": "nifi.security.ocsp.responder.url",
+		"required": "false",
+		"type": "uri",
+		"default": ""
+	},
+	{
+		"name": "security_ocsp_responder_certificate",
+		"label": "Security ocsp responder certificate",
+		"description": "This is the location of the OCSP responder certificate if one is being used. It is blank by default.",
+		"configName": "nifi.security.ocsp.responder.certificate",
+		"required": "false",
+		"type": "path",
+		"pathType": "serviceSpecific",
+		"default": ""
+	},
+	{
+		"name": "cluster_protocol_heartbeat_interval",
+		"label": "Cluster protocol heartbeat interval",
+		"description": "The interval at which nodes should emit heartbeats to the Cluster Coordinator. The default value is 5 sec.",
+		"configName": "nifi.cluster.protocol.heartbeat.interval",
+		"required": "true",
+		"type": "string",
+		"default": "5 sec"
+	},
+	{
+		"name": "cluster_protocol_is_secure",
+		"label": "Cluster protocol is secure",
+		"description": "This indicates whether cluster communications are secure. The default value is false.",
+		"configName": "nifi.cluster.protocol.is.secure",
+		"required": "true",
+		"type": "boolean",
+		"default": "false"
+	},
+	{
+		"name": "cluster_is_node",
+		"label": "Cluster is node",
+		"description": "Set this to true if the instance is a node in a cluster. The default value is false.",
+		"configName": "nifi.cluster.is.node",
+		"required": "true",
+		"type": "boolean",
+		"configurableInWizard": true,
+		"default": "true"
+	},
+	{
+		"name": "cluster_node_protocol_port",
+		"label": "Cluster node protocol port",
+		"description": "The nodes protocol port. It is blank by default.",
+		"configName": "nifi.cluster.node.protocol.port",
+		"required": "true",
+		"type": "port",
+		"default": "9123"
+	},
+	{
+		"name": "cluster_node_protocol_threads",
+		"label": "Cluster node protocol threads",
+		"description": "The number of threads that should be used to communicate with other nodes in the cluster. This property defaults to 10, but for large clusters, this value may need to be larger.",
+		"configName": "nifi.cluster.node.protocol.threads",
+		"required": "true",
+		"type": "long",
+		"default": "50"
+	},
+	{
+		"name": "cluster_node_event_history_size",
+		"label": "Cluster node event history size",
+		"description": "When the state of a node in the cluster is changed, an event is generated and can be viewed in the Cluster page. This value indicates how many events to keep in memory for each node. The default value is 25.",
+		"configName": "nifi.cluster.node.event.history.size",
+		"required": "true",
+		"type": "long",
+		"default": "25"
+	},
+	{
+		"name": "cluster_node_connection_timeout",
+		"label": "Cluster node connection timeout",
+		"description": "When connecting to another node in the cluster, specifies how long this node should wait before considering the connection a failure. The default value is 5 secs.",
+		"configName": "nifi.cluster.node.connection.timeout",
+		"required": "true",
+		"type": "string",
+		"default": "20 sec"
+	},
+	{
+		"name": "cluster_node_read_timeout",
+		"label": "Cluster node read timeout",
+		"description": "When communicating with another node in the cluster, specifies how long this node should wait to receive information from the remote node before considering the communication with the node a failure. The default value is 5 secs.",
+		"configName": "nifi.cluster.node.read.timeout",
+		"required": "true",
+		"type": "string",
+		"default": "20 sec"
+	},
+	{
+		"name": "cluster_firewall_file",
+		"label": "Cluster firewall file",
+		"description": "The location of the node firewall file. This is a file that may be used to list all the nodes that are allowed to connect to the cluster. It provides an additional layer of security. This value is blank by default, meaning that no firewall file is to be used.",
+		"configName": "nifi.cluster.firewall.file",
+		"required": "false",
+		"type": "path",
+		"pathType": "serviceSpecific",
+		"default": ""
+	},
+	{
+		"name": "cluster_flow_election_max_wait_time",
+		"label": "Cluster flow election max wait time",
+		"description": "Specifies the amount of time to wait before electing a Flow as the correct Flow. If the number of Nodes that have voted is equal to the number specified by the nifi.cluster.flow.election.max.candidates property, the cluster will not wait this long. The default value is 5 mins. Note that the time starts as soon as the first vote is cast.",
+		"configName": "nifi.cluster.flow.election.max.wait.time",
+		"required": "true",
+		"type": "string",
+		"default": "1 min"
+	},
+	{
+		"name": "cluster_flow_election_max_candidates",
+		"label": "Cluster flow election max candidates",
+		"description": "Specifies the number of Nodes required in the cluster to cause early election of Flows. This allows the Nodes in the cluster to avoid having to wait a long time before starting processing if we reach at least this number of nodes in the cluster.",
+		"configName": "nifi.cluster.flow.election.max.candidates",
+		"required": "false",
+		"type": "long",
+		"default": ""
+	},
+	{
+		"name": "zookeeper_connect_string",
+		"label": "Zookeeper connect string",
+		"description": "The Connect String that is needed to connect to Apache ZooKeeper. This is a comma-separated list of hostname:port pairs.",
+		"configName": "nifi.zookeeper.connect.string",
+		"required": "true",
+		"type": "string_array",
+		"configurableInWizard": true,
+		"separator": ",",
+		"default": ["localhost:2181"]
+	},
+	{
+		"name": "zookeeper_connect_timeout",
+		"label": "Zookeeper connect timeout",
+		"description": "How long to wait when connecting to ZooKeeper before considering the connection a failure. The default value is 3 secs.",
+		"configName": "nifi.zookeeper.connect.timeout",
+		"required": "true",
+		"type": "string",
+		"default": "10 sec"
+	},
+	{
+		"name": "zookeeper_session_timeout",
+		"label": "Zookeeper session timeout",
+		"description": "How long to wait after losing a connection to ZooKeeper before the session is expired. The default value is 3 secs.",
+		"configName": "nifi.zookeeper.session.timeout",
+		"required": "true",
+		"type": "string",
+		"default": "10 sec"
+	},
+	{
+		"name": "zookeeper_root_node",
+		"label": "Zookeeper root node",
+		"description": "The root ZNode that should be used in ZooKeeper. ",
+		"configName": "nifi.zookeeper.root.node",
+		"required": "true",
+		"type": "path",
+		"pathType": "serviceSpecific",
+		"default": "/nifi"
+	},
+	{
+		"name": "kerberos_krb5_file",
+		"label": "Kerberos krb5 file",
+		"description": "The location of the krb5 file, if used. It is blank by default. ",
+		"configName": "nifi.kerberos.krb5.file",
+		"required": "false",
+		"type": "path",
+		"pathType": "serviceSpecific",
+		"default": ""
+	},
+	{
+		"name": "kerberos_service_principal",
+		"label": "Kerberos service principal",
+		"description": "The name of the NiFi Kerberos service principal, if used. It is blank by default.",
+		"configName": "nifi.kerberos.service.principal",
+		"required": "false",
+		"type": "string",
+		"default": ""
+	},
+	{
+		"name": "kerberos_service_keytab_location",
+		"label": "Kerberos service keytab location",
+		"description": "The file path of the NiFi Kerberos keytab, if used. It is blank by default.",
+		"configName": "nifi.kerberos.service.keytab.location",
+		"required": "false",
+		"type": "path",
+		"pathType": "serviceSpecific",
+		"default": ""
+	},
+	{
+		"name": "kerberos_spnego_principal",
+		"label": "Kerberos spnego principal",
+		"description": "The name of the NiFi Kerberos service principal, if used. It is blank by default.",
+		"configName": "nifi.kerberos.spnego.principal",
+		"required": "false",
+		"type": "string",
+		"default": ""
+	},
+	{
+		"name": "kerberos_spnego_keytab_location",
+		"label": "Kerberos spnego keytab location",
+		"description": "The file path of the NiFi Kerberos keytab, if used. It is blank by default.",
+		"configName": "nifi.kerberos.spnego.keytab.location",
+		"required": "false",
+		"type": "path",
+		"pathType": "serviceSpecific",
+		"default": ""
+	},
+	{
+		"name": "kerberos_spnego_authentication_expiration",
+		"label": "Kerberos spnego authentication expiration",
+		"description": "The expiration duration of a successful Kerberos user authentication, if used. The default value is 12 hours.",
+		"configName": "nifi.kerberos.spnego.authentication.expiration",
+		"required": "true",
+		"type": "string",
+		"default": "12 hours"
+	},
+	{
+		"name": "variable_registry_properties",
+		"label": "variable registry properties",
+		"description": "This is a comma-separated list of file location paths for one or more custom property files.",
+		"configName": "nifi.variable.registry.properties",
+		"required": "false",
+		"type": "path_array",
+		"separator": ",",
+		"pathType": "serviceSpecific"
+	}]
+}
